@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
 import vMouseMenu from './directive/mosue-menu/mouse-menu.ts'
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 import background from "./components/Background.vue";
+import layout from "./components/Layout.vue";
 
+const fresh = ref(false)
 const menus = ref([
   {
     label: '添加图标', handler: () => {
@@ -17,7 +18,7 @@ const menus = ref([
   },
   {
     label: '随机壁纸', handler: () => {
-      console.log("随机壁纸")
+      fresh.value = !fresh.value
     }
   },
   {
@@ -33,30 +34,12 @@ const menus = ref([
 
 ])
 
-const menus1 = ref([
-  {
-    label: '添加图标', handler: () => {
-      console.log("添加图标")
-    }
-  },
-  {
-    label: '添加图标', handler: () => {
-      console.log("添加图标")
-    }
-  }, {
-    label: '添加图标', handler: () => {
-      console.log("添加图标")
-    }
-  }
-
-])
-
 </script>
 
 <template>
   <main class="page" v-mouse-menu="menus">
-   <background></background>
-    <hello-world></hello-world>
+    <background :refresh="fresh"></background>
+    <layout></layout>
   </main>
 </template>
 
@@ -67,7 +50,8 @@ const menus1 = ref([
   max-height: 100%;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
+  color: aliceblue;
 }
-
 
 </style>

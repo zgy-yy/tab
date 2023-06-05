@@ -43,8 +43,9 @@ function stopEvent(e: Event) {
   cursor: pointer;
   display: inline-block;
   padding: 12px;
+  font-size: 13px;
 
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 10px;
   user-select: none;
   white-space: nowrap;
@@ -52,12 +53,15 @@ function stopEvent(e: Event) {
   top: v-bind('posi.y');
 
   & > p {
-    text-align: center;
-    //padding: 8px;
-    border-radius: 5px;
+
+    color: #383838;
+    text-align: start;
+    padding: 8px;
+    border-radius: 6px;
 
     &:hover {
-      background: rgba(183, 181, 181, 0.9);
+      color: #000;
+      background: rgba(182, 179, 179, 0.9);
     }
   }
 }
