@@ -3,7 +3,9 @@ import HelloWorld from './components/HelloWorld.vue'
 import vMouseMenu from './directive/mosue-menu/mouse-menu.ts'
 import {onMounted, ref} from "vue";
 import background from "./components/Background.vue";
+import Layout from "./components/Layout.vue";
 
+const fresh = ref(false)
 const menus = ref([
   {
     label: '添加图标', handler: () => {
@@ -17,7 +19,7 @@ const menus = ref([
   },
   {
     label: '随机壁纸', handler: () => {
-      console.log("随机壁纸")
+      fresh.value = !fresh.value
     }
   },
   {
@@ -33,30 +35,16 @@ const menus = ref([
 
 ])
 
-const menus1 = ref([
-  {
-    label: '添加图标', handler: () => {
-      console.log("添加图标")
-    }
-  },
-  {
-    label: '添加图标', handler: () => {
-      console.log("添加图标")
-    }
-  }, {
-    label: '添加图标', handler: () => {
-      console.log("添加图标")
-    }
-  }
-
-])
-
 </script>
 
 <template>
   <main class="page" v-mouse-menu="menus">
-   <background></background>
-    <hello-world></hello-world>
+    <background :refresh="fresh"></background>
+    <layout>
+     <template #default>
+       <div class="item" v-for="item in 90" >{{ item }}</div>
+     </template>
+    </layout>
   </main>
 </template>
 
@@ -67,7 +55,27 @@ const menus1 = ref([
   max-height: 100%;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
+  color: aliceblue;
+}
+.item{
+  border: 1px solid #c9b3b3;
+  width: 80%;
+  height: 80%;
+}
+div.item:first-child {
+  grid-area: span 1 / span 2;
+  color: #b99f9f;
+  background-color: red;
 }
 
+div.item:nth-child(5) {
+  grid-area: span 2 / span 2;
+  background-color: red;
+}
+div.item:nth-child(28) {
+  grid-area: span 2 / span 3;
+  background-color: red;
+}
 
 </style>
