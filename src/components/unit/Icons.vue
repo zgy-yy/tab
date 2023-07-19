@@ -6,14 +6,21 @@ const props = defineProps<{ data: IconInfo }>()
 
 <template>
   <div class="container">
-    <img src="" alt="">
+    <img :src="props.data.info.img" alt="">
     <p>{{ data.info.name }}</p>
   </div>
+
 </template>
 
 <style scoped lang="scss">
 .container {
+  position: relative;
   border: 1px solid red;
   background: #737373;
+
+  img {
+    height: 60px;
+  }
 }
+
 </style>

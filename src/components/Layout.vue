@@ -9,43 +9,82 @@ const container = ref<HTMLElement>()
 
 let sourceEl: HTMLElement
 
-function handleDragStart(e: DragEvent) {
-  sourceEl = e.target as HTMLElement
-  sourceEl.style.opacity = '0.01'
+const startPos = {
+  x: 0,
+  y: 0
 }
 
-function handleDragover(ev: DragEvent) {
-  ev.preventDefault();
+function handleDragStart(e: DragEvent) {
+  const target = e.target as HTMLElement
+  if (target.parentElement.dataset.flag) {
+    sourceEl = target.parentElement
+    sourceEl.style.pointerEvents = "none"
+    sourceEl.style.zIndex = '2';
+    console.log(e)
+    startPos.x = e.pageX
+    startPos.y = e.pageY
+  }
+
+
 }
 
 let timer = -1;
-
-function handleDragenter(ev: DragEvent) {
-  ev.preventDefault();
+function handleDragover(ev: DragEvent) {
+  if (sourceEl == null) {
+    return
+  }
   if (timer > 0) {
     return
   }
-  const target = ev.target as HTMLElement
-
-  if (target.getAttribute('draggable')) {
-    if (target === container.value || target === sourceEl) {
-      return false;
-    }
-    console.log(target)
+  sourceEl.style.transform = `translate(${ev.pageX - startPos.x}px,${ev.pageY - startPos.y}px)`
+  let target = ev.target as HTMLElement
+  if (target.className == "mask") {
+    target = target.parentElement
+    console.log(target.parentElement)
     const childrenArr = Array.from(container.value.children)
     const targetIndex: number = childrenArr.indexOf(target)
     const sourceIndex: number = childrenArr.indexOf(sourceEl)
-
+    sourceEl.style.transform=''
     iconsInfo.change(sourceIndex, targetIndex)
-    timer = setTimeout(() => {
-      timer = -1
-    }, 500)
-
+      timer = setTimeout(() => {
+        timer = -1
+      }, 500)
   }
+
+
+}
+
+
+
+function handleDragenter(ev: DragEvent) {
+
+  // return
+  // ev.preventDefault();
+  // if (timer > 0) {
+  //   return
+  // }
+  // const target = ev.target as HTMLElement
+  // if (target.getAttribute('draggable')) {
+  //   if (target === container.value || target === sourceEl) {
+  //     return false;
+  //   }
+  //   console.log(target)
+
+  //
+  //   iconsInfo.change(sourceIndex, targetIndex)
+
+  //
+  // }
 }
 
 function handelDrop(e) {
-  sourceEl.style.opacity = '1'
+  if (sourceEl != null) {
+    sourceEl.style.pointerEvents = "auto"
+    sourceEl.style.zIndex = "0"
+  }
+
+  sourceEl = null
+  // sourceEl.style.opacity = '1'
 }
 
 
@@ -53,14 +92,15 @@ function handelDrop(e) {
 
 <template>
   <div class="back-box hide-scroll">
-    <section class="main-box grid" ref="container" @dragstart="handleDragStart" @dragover="handleDragover"
-             @dragenter="handleDragenter"
-             @drop="handelDrop">
+    <section class="main-box grid" ref="container" @mousedown="handleDragStart" @mousemove="handleDragover"
+             @mouseup="handelDrop">
       <TransitionGroup name="fade">
-        <div draggable="true" :style="{'grid-area': `span ${item.size.x} /span ${item.size.y}`}"
+        <div data-flag="item" :style="{'grid-area': `span ${item.size.x} /span ${item.size.y}`}"
              v-for="(item) in iconsInfo.iconInfo"
              :key="item.info.name">
           <Icons :data="item"></Icons>
+          <p class="mask">
+          </p>
         </div>
       </TransitionGroup>
     </section>
@@ -71,8 +111,9 @@ function handelDrop(e) {
 <style scoped lang="scss">
 
 .back-box {
+  //background: #383838;
   width: 100%;
-  height: 100vh;
+  //height: 100vh;
   scroll-behavior: smooth;
   overflow: auto;
 
@@ -89,6 +130,7 @@ function handelDrop(e) {
   padding: 230px 0;
   scroll-behavior: smooth;
   overflow-y: auto;
+  //cursor: move;
 }
 
 .grid {
@@ -102,9 +144,10 @@ function handelDrop(e) {
 
   & > div {
     border: 1px solid red;
-    width: 100%;
-    height: 100%;
-    padding: 20%;
+    position: relative;
+    //width: 100%;
+    //height: 100%;
+    //padding: 20%;
   }
 }
 
@@ -112,4 +155,12 @@ function handelDrop(e) {
   transition: transform 0.3s ease-in-out;
 }
 
+.mask {
+  top: 0;
+  position: absolute;
+  border: 1px solid green;
+  //background: #383838;
+  width: 100%;
+  height: 100%;
+}
 </style>

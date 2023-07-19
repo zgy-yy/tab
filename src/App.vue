@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import vMouseMenu from './directive/mosue-menu/mouse-menu.ts'
 import {ref} from "vue";
-import background from "./components/Background.vue";
-import layout from "./components/Layout.vue";
+import Background from "./components/Background.vue";
+import Layout from "./components/Layout.vue";
+import ToolBar from "./components/ToolBar.vue";
 
 const fresh = ref(false)
+const downImg = ref(false)
 const menus = ref([
   {
     label: '添加图标', handler: () => {
@@ -24,6 +26,7 @@ const menus = ref([
   {
     label: '下载壁纸', handler: () => {
       console.log("下载壁纸")
+      downImg.value = !downImg.value
     }
   },
   {
@@ -38,8 +41,10 @@ const menus = ref([
 
 <template>
   <main class="page" v-mouse-menu="menus">
-    <background :refresh="fresh"></background>
-    <layout></layout>
+    <Background :refresh="fresh" :downimg="downImg"></Background>
+    <Layout></Layout>
+    <!--    <layout></layout>-->
+    <ToolBar class="tool-bar"></ToolBar>
   </main>
 </template>
 
@@ -54,4 +59,9 @@ const menus = ref([
   color: aliceblue;
 }
 
+.tool-bar {
+  position: absolute;
+  top: 0;
+  left: 10px;
+}
 </style>

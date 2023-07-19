@@ -6,7 +6,7 @@ const useIconStore = defineStore('icon', {
     state: (): { icons: IconInfo[] } => {
         return {
             icons: [{
-                size: {x: 1, y: 2}, info: {name: '爱奇艺', url: '', img: ''}
+                size: {x: 1, y: 2}, info: {name: '百度', url: 'https://www.iqiyi.com', img: 'https://infinityicon.infinitynewtab.com/user-share-icon/c9f7546ad597dd7fb53e8129b6c07877.png?imageMogr2/thumbnail/176x/format/webp/blur/1x0/quality/100|imageslim'}
             },
                 {
                     size: {x: 1, y: 2}, info: {name: '腾讯', url: '', img: ''}
