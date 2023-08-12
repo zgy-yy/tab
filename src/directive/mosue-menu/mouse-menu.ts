@@ -1,4 +1,4 @@
-import {Directive, h, nextTick, render} from "vue";
+import {Directive, h, render} from "vue";
 import {MenuTag} from "../direct-type.ts";
 import menuView from "./MenuView.vue";
 
@@ -7,15 +7,13 @@ const mouseMenu: Directive<HTMLElement, MenuTag[]> = {
         document.addEventListener('contextmenu', () => {
             render(null, el)
         }, true)
+        console.log(el)
 
-        let rootEl: HTMLElement;
-        nextTick(() => {
-            rootEl = document.querySelector('.page')
-        })
+        let rootEl: HTMLElement = el;
         el.addEventListener("contextmenu", (e: MouseEvent) => {
-
             e.preventDefault() //阻止右键默认行为
             e.stopPropagation()
+            console.log(el)
             const {pageX, pageY} = e
             const {left, top} = rootEl.getBoundingClientRect()
             const position = {
@@ -23,13 +21,13 @@ const mouseMenu: Directive<HTMLElement, MenuTag[]> = {
                 y: pageY - top
             }
             const vMenu = h(menuView, {tags: binding.value, position: position, parEl: rootEl},)
-
             render(vMenu, el)
         })
 
+
         document.addEventListener('click', () => {
             render(null, el)
-        })
+        },true)
     }
 
 }

@@ -1,109 +1,126 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
 import useIconStore from "../store/iconStore.ts";
 import Icons from "./unit/Icons.vue";
-// import vMouseMenu from '../directive/mosue-menu/mouse-menu.ts'
+import {storeToRefs} from "pinia";
+import {ref} from "vue";
+import vMouseMenu from '../directive/mosue-menu/mouse-menu.ts'
 const iconsInfo = useIconStore()
 
-const container = ref<HTMLElement>()
-
+const {
+  icons
+} = storeToRefs(iconsInfo)
+// const container = ref<HTMLElement>()
+let originalEl:HTMLElement
 let sourceEl: HTMLElement
-
-const startPos = {
+let sourceInd: number
+const offset = {
   x: 0,
   y: 0
 }
 
 function handleDragStart(e: DragEvent) {
-  const target = e.target as HTMLElement
-  if (target.parentElement.dataset.flag) {
-    sourceEl = target.parentElement
+
+  const target = e.target as HTMLElement //.item-container
+  originalEl = target
+  if (target.className == 'item-container') {
+    sourceEl = target.cloneNode(true) as HTMLElement
+    const containerEl = target.parentElement //容器
+    sourceInd = Array.from(containerEl.children).indexOf(target)//要移动元素的index
+    originalEl.style.visibility='hidden'
+
+    sourceEl.style.position = 'fixed'
+    // // 更新元素的位置为鼠标的位置
+    sourceEl.style.left = 0 + 'px';
+    sourceEl.style.top = 0 + 'px';
+    // // 获取鼠标相对于该元素的位置
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    offset.x = e.offsetX
+    offset.y = e.offsetY
+    sourceEl.style.transform = `translate(${mouseX - e.offsetX}px,${mouseY - e.offsetY}px)`
+    sourceEl.style.zIndex = "9"
     sourceEl.style.pointerEvents = "none"
-    sourceEl.style.zIndex = '2';
-    console.log(e)
-    startPos.x = e.pageX
-    startPos.y = e.pageY
+    containerEl.append(sourceEl)
   }
-
-
 }
 
-let timer = -1;
-function handleDragover(ev: DragEvent) {
+
+function handleDragover(ev: MouseEvent) {
   if (sourceEl == null) {
     return
   }
-  if (timer > 0) {
-    return
-  }
-  sourceEl.style.transform = `translate(${ev.pageX - startPos.x}px,${ev.pageY - startPos.y}px)`
+  const mouseX = ev.clientX
+  const mouseY = ev.clientY
+  sourceEl.style.transform = `translate(${mouseX - offset.x}px,${mouseY - offset.y}px)`
   let target = ev.target as HTMLElement
-  if (target.className == "mask") {
-    target = target.parentElement
-    console.log(target.parentElement)
-    const childrenArr = Array.from(container.value.children)
-    const targetIndex: number = childrenArr.indexOf(target)
-    const sourceIndex: number = childrenArr.indexOf(sourceEl)
-    sourceEl.style.transform=''
-    iconsInfo.change(sourceIndex, targetIndex)
-      timer = setTimeout(() => {
-        timer = -1
-      }, 500)
+  if (target.className == "item-container") {//在别的元素上
+    const containerEl = target.parentElement //容器
+    let curInd = Array.from(containerEl.children).indexOf(target)
+    console.log("sour", sourceInd, "cur", curInd)
+    iconsInfo.change(sourceInd, curInd)
+    sourceInd = curInd
   }
 
-
 }
 
 
-
-function handleDragenter(ev: DragEvent) {
-
-  // return
-  // ev.preventDefault();
-  // if (timer > 0) {
-  //   return
-  // }
-  // const target = ev.target as HTMLElement
-  // if (target.getAttribute('draggable')) {
-  //   if (target === container.value || target === sourceEl) {
-  //     return false;
-  //   }
-  //   console.log(target)
-
-  //
-  //   iconsInfo.change(sourceIndex, targetIndex)
-
-  //
-  // }
-}
-
-function handelDrop(e) {
+function handelDrop() {
   if (sourceEl != null) {
-    sourceEl.style.pointerEvents = "auto"
-    sourceEl.style.zIndex = "0"
+    sourceEl.parentElement.removeChild(sourceEl)
   }
-
+  originalEl.style.visibility='visible'
   sourceEl = null
-  // sourceEl.style.opacity = '1'
-}
 
+}
+const menu = ref([
+  {
+    label: '当前页面打开', handler: () => {
+      console.log("添加图标")
+    }
+  },
+  {
+    label: '新标签页打开', handler: () => {
+      console.log("新标签页打开")
+    }
+  },
+  {
+    label: '编辑主页', handler: () => {
+      console.log("编辑主页")
+    }
+  },
+  {
+    label: '编辑图标', handler: () => {
+      console.log("编辑图标")
+    }
+  },
+  {
+    label: '添加图标', handler: () => {
+      console.log("添加图标")
+    }
+  },
+  {
+    label: '删除图标', handler: () => {
+      console.log("删除图标")
+    }
+  },
+
+])
 
 </script>
 
 <template>
-  <div class="back-box hide-scroll">
-    <section class="main-box grid" ref="container" @mousedown="handleDragStart" @mousemove="handleDragover"
-             @mouseup="handelDrop">
+  <div class="back-box hide-scroll" @mousedown.left="handleDragStart" @mousemove="handleDragover"
+       @mouseup.left="handelDrop">
+    <section class="main-box grid " ref="container">
       <TransitionGroup name="fade">
-        <div data-flag="item" :style="{'grid-area': `span ${item.size.x} /span ${item.size.y}`}"
-             v-for="(item) in iconsInfo.iconInfo"
+        <div v-mouse-menu="menu" class="item-container" :style="{'grid-area': `span ${item.size.x} /span ${item.size.y}`}"
+             v-for="(item) in icons"
              :key="item.info.name">
           <Icons :data="item"></Icons>
-          <p class="mask">
-          </p>
         </div>
       </TransitionGroup>
     </section>
+    <slot name="leftBar"></slot>
   </div>
 
 </template>
@@ -111,56 +128,52 @@ function handelDrop(e) {
 <style scoped lang="scss">
 
 .back-box {
-  //background: #383838;
-  width: 100%;
-  //height: 100vh;
+  height: 100%;
   scroll-behavior: smooth;
   overflow: auto;
 
   &::-webkit-scrollbar {
     width: 0;
     height: 0;
+
   }
 }
 
 .main-box {
+
+  position: relative;
   margin: 0 auto;
-  border: 1px solid #c25050;
-  width: 80%;
-  padding: 230px 0;
+  padding: 230px 20%;
   scroll-behavior: smooth;
-  overflow-y: auto;
-  //cursor: move;
+
 }
 
 .grid {
   display: grid;
   grid-auto-rows: 150px;
-  grid-template-columns: repeat(auto-fill, 150px);
+  grid-template-columns: repeat(auto-fill, 100px);
   grid-auto-flow: dense;
   justify-content: center;
   align-items: center;
   justify-items: center;
 
-  & > div {
-    border: 1px solid red;
+  .item-container {
     position: relative;
-    //width: 100%;
-    //height: 100%;
-    //padding: 20%;
+
+    &::after {
+      content: ' ';
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      //background: rgba(253, 251, 251, 0.16);
+      top: 0;
+      position: absolute;
+    }
   }
 }
 
 .fade-move {
-  transition: transform 0.3s ease-in-out;
+  transition: transform 1s ease-in-out;
 }
 
-.mask {
-  top: 0;
-  position: absolute;
-  border: 1px solid green;
-  //background: #383838;
-  width: 100%;
-  height: 100%;
-}
 </style>

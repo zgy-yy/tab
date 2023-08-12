@@ -1,16 +1,8 @@
 <script setup lang="ts">
-import {onUpdated, ref, watch} from "vue";
+import { ref} from "vue";
 
-const props = defineProps<{ refresh: Boolean ,downimg:Boolean}>()
+// const props = defineProps<{ refresh: Boolean ,downimg:Boolean}>()
 const img_url = ref('')
-watch(() => props.refresh, () => {
-  update()
-})
-
-watch(() => props.downimg, () => {
-  downImg(img_url.value)
-})
-
 
 
 const client_id = "t-3ouylI0Bamt35tSGgnxpnuHAg26yiboPDar4VMRo4"
@@ -20,23 +12,22 @@ const url = 'https://source.unsplash.com/collection/1466477/1920x1080'
 const stateStyle = ref('normal')
 
 function randomImage() {
-  return fetch(url).then(res => {
-    img_url.value = res.url
+  stateStyle.value = "change"
+  fetch(url).then(res => {
+    fetch(res.url).then(res => res.blob()).then(blob=>{
+      let blobUrl = URL.createObjectURL(blob);
 
-    console.log(res.url)
-
+      // 设置Image元素的src属性为blobUrl
+      img_url.value = blobUrl;
+      stateStyle.value = "normal"
+    })
   })
 }
 
-function update() {
-  stateStyle.value = 'change'
-  randomImage().then(() => {
-    stateStyle.value = 'normal'
-  })
-}
+randomImage()
 
-function downImg(url) {
-  fetch(url)
+function downImg() {
+  fetch(img_url.value)
       .then(response => response.blob())
       .then(blob => {
         // 创建一个临时URL
@@ -57,7 +48,10 @@ function downImg(url) {
       });
 }
 
-randomImage()
+defineExpose({
+  randomImage,
+  downImg
+})
 
 </script>
 

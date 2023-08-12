@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {MenuTag} from "../direct-type.ts";
-import {h, nextTick, onUpdated, ref} from "vue";
+import {nextTick, ref} from "vue";
 
 const props = defineProps<{ tags: MenuTag[], position: { x: number, y: number }, parEl: HTMLElement }>()
 
@@ -16,6 +16,8 @@ const posi = ref({
 })
 nextTick(() => {
   const {width, height} = menuRef.value.getBoundingClientRect()
+  if (parelSize.width < 300 || parelSize.height < 300)
+    return
   if (props.position.x + width > parelSize.width) {
     posi.value.x = parelSize.width - width - 5 + 'px'
   }
@@ -40,6 +42,7 @@ function stopEvent(e: Event) {
 <style scoped lang="scss">
 .mouse-menu {
   position: absolute;
+  z-index: 99;
   cursor: pointer;
   display: inline-block;
   padding: 12px;

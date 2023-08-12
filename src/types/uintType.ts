@@ -8,6 +8,6 @@ export interface IconInfo {
     info: {
         name: string,
         url: string,
-        img: string
+        img: Blob
     }
 }

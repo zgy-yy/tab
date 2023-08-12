@@ -1,4 +1,5 @@
 /* reset default */
+
 body,
 img,
 p,
@@ -55,4 +56,17 @@ textarea {
     margin: 0 auto;
     width: 100%;
     height: 100%;
+}
+
+input, textarea {
+    &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    overflow: scroll;
+    resize: none;
+    border: none;
+    outline: none;
+    background: none;
 }
