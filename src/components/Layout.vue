@@ -4,13 +4,14 @@ import Icons from "./unit/Icons.vue";
 import {storeToRefs} from "pinia";
 import {ref} from "vue";
 import vMouseMenu from '../directive/mosue-menu/mouse-menu.ts'
+
 const iconsInfo = useIconStore()
 
 const {
   icons
 } = storeToRefs(iconsInfo)
 // const container = ref<HTMLElement>()
-let originalEl:HTMLElement
+let originalEl: HTMLElement
 let sourceEl: HTMLElement
 let sourceInd: number
 const offset = {
@@ -26,7 +27,7 @@ function handleDragStart(e: DragEvent) {
     sourceEl = target.cloneNode(true) as HTMLElement
     const containerEl = target.parentElement //容器
     sourceInd = Array.from(containerEl.children).indexOf(target)//要移动元素的index
-    originalEl.style.visibility='hidden'
+    originalEl.style.visibility = 'hidden'
 
     sourceEl.style.position = 'fixed'
     // // 更新元素的位置为鼠标的位置
@@ -64,17 +65,22 @@ function handleDragover(ev: MouseEvent) {
 }
 
 
+let curUrl: string = ''
+
 function handelDrop() {
   if (sourceEl != null) {
     sourceEl.parentElement.removeChild(sourceEl)
+    originalEl.style.visibility = 'visible'
   }
-  originalEl.style.visibility='visible'
   sourceEl = null
 
 }
+
 const menu = ref([
   {
     label: '当前页面打开', handler: () => {
+      console.log(curUrl)
+      window.open('http://' + curUrl);
       console.log("添加图标")
     }
   },
@@ -106,14 +112,16 @@ const menu = ref([
 
 ])
 
+
 </script>
 
 <template>
-  <div class="back-box hide-scroll" @mousedown.left="handleDragStart" @mousemove="handleDragover"
-       @mouseup.left="handelDrop">
-    <section class="main-box grid " ref="container">
+  <div class="back-box hide-scroll">
+    <section class="main-box grid " @mousedown.left="handleDragStart" @mousemove="handleDragover"
+             @mouseup.left="handelDrop">
       <TransitionGroup name="fade">
-        <div v-mouse-menu="menu" class="item-container" :style="{'grid-area': `span ${item.size.x} /span ${item.size.y}`}"
+        <div v-mouse-menu="menu" @contextmenu="()=>curUrl=item.info.url" class="item-container"
+             :style="{'grid-area': `span ${item.size.x} /span ${item.size.y}`}"
              v-for="(item) in icons"
              :key="item.info.name">
           <Icons :data="item"></Icons>

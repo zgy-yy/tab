@@ -1,18 +1,18 @@
 import {defineStore} from "pinia";
 import {IconInfo} from "../types/uintType.ts";
-import {ref} from "vue";
+import {reactive, toRaw} from "vue";
 import indexDb from "../utils/db.ts";
 
 
 const useIconStore = defineStore('icon', () => {
-    const icons = ref<IconInfo[]>(
+    const icons = reactive<IconInfo[]>(
         []
     )
 
     function update() {
         indexDb.getList().then(res => {
             for (const icon of res) {
-                icons.value.push(icon.file)
+                icons.push(icon.file)
             }
         })
     }
@@ -29,7 +29,7 @@ const useIconStore = defineStore('icon', () => {
 
 
     function addIcon(icon: IconInfo) {
-        icons.value.push(icon)
+        icons.push(icon)
         indexDb.getList().then(res => {
             indexDb.add(icon, res.length)
         })
@@ -37,8 +37,9 @@ const useIconStore = defineStore('icon', () => {
     }
 
     function change(sourceIndex: number, targetIndex: number) {
-        [icons.value[sourceIndex], icons.value[targetIndex]] = [icons.value[targetIndex], icons.value[sourceIndex]]
-        icons.value = [...icons.value]
+        [icons[sourceIndex], icons[targetIndex]] = [icons[targetIndex], icons[sourceIndex]]
+        indexDb.update(toRaw(icons[sourceIndex]),sourceIndex)
+        indexDb.update(toRaw(icons[targetIndex]),targetIndex)
     }
 
     return {

@@ -7,13 +7,11 @@ const mouseMenu: Directive<HTMLElement, MenuTag[]> = {
         document.addEventListener('contextmenu', () => {
             render(null, el)
         }, true)
-        console.log(el)
 
         let rootEl: HTMLElement = el;
         el.addEventListener("contextmenu", (e: MouseEvent) => {
             e.preventDefault() //阻止右键默认行为
             e.stopPropagation()
-            console.log(el)
             const {pageX, pageY} = e
             const {left, top} = rootEl.getBoundingClientRect()
             const position = {
@@ -27,7 +25,7 @@ const mouseMenu: Directive<HTMLElement, MenuTag[]> = {
 
         document.addEventListener('click', () => {
             render(null, el)
-        },true)
+        }, true)
     }
 
 }

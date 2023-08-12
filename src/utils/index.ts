@@ -1,13 +1,11 @@
-
 export function getWebSitIcon(websiteUrl: string) {
     return fetch(`/icon-api/${websiteUrl}`)
-        .then(response => response.blob())
-        .then(data => {
-            return data
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('请求失败')
+            }
+            return response.blob()
         })
-        .catch(error => {
-            console.error(error);
-        });
 }
 
 
@@ -16,10 +14,14 @@ export function debounce<T>(func: (args: T) => Promise<any>, delay: number) {
 
     return async function (args: T) {
         clearTimeout(timer);
-        return new Promise(resolve => {
-            timer = setTimeout(function () {
+        return new Promise((resolve,reject) => {
+
+            timer = setTimeout(async function () {
                 func(args).then(res => {
                     resolve(res)
+                }).catch(res => {
+                    console.log('err', res)
+                    reject('err')
                 })
             }, delay);
         })

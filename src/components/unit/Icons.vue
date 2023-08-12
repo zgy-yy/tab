@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {IconInfo} from "../../types/uintType.ts";
-import { toRefs} from "vue";
+import {toRefs} from "vue";
 
 const props = defineProps<{ data: IconInfo }>()
 const {data} = toRefs(props)
 const imgUrl = URL.createObjectURL(data.value.info.img)
-
 
 
 </script>

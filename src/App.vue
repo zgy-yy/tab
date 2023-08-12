@@ -58,7 +58,6 @@ const men = ref([{
     <Layout>
       <template #leftBar>
         <ToolBar class="tool-bar" v-mouse-menu="men"></ToolBar>
-
       </template>
     </Layout>
     <add-icon v-if="showAddIcon" @close-me="state =>{ showAddIcon=!state}" class="add-icon"/>

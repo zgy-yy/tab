@@ -2,8 +2,8 @@
 
 
 class IndexDB {
-    indexedDB = window.indexedDB || window.webkitindexedDB || window.msIndexedDB || mozIndexedDB
-    db = null
+    indexedDB = window.indexedDB
+    db:any = null
 
     constructor() {
         let request = this.indexedDB.open('TabDb')
@@ -13,8 +13,8 @@ class IndexDB {
         }
         // 如果指定的版本号，大于数据库的实际版本号，就会发生数据库升级事件upgradeneeded。
         // 升级后自动触发success
-        request.onupgradeneeded = event => {
-            let db = event.target.result// 数据库对象
+        request.onupgradeneeded = () => {
+            let db = request.result// 数据库对象
             this.db = db
             // 建表 iconData,主键为task_id
             const store = this.db.createObjectStore('iconData', {
@@ -32,36 +32,36 @@ class IndexDB {
         }
         // success
         request.onsuccess = event => {
-            this.db = event.target.result
+            this.db = request.result
             console.log('数据库打开/创建成功', event)
         }
     }
 
-    add(data, order) {
+    add(data: any, order: number) {
         let request = this.db.transaction(['iconData'], 'readwrite').objectStore('iconData').add({
             id: new Date().getTime(),
             file: data,
             order_index: order
         })
-        request.onsuccess = event => {
+        request.onsuccess = () => {
             console.log('添加成功')
         }
-        request.onerror = event => {
+        request.onerror = () => {
             console.log('主键 order_index 重复')
         }
     }
 
 
-    read(order_index) {
+    read(order_index: number) {
         const transaction = this.db.transaction(['iconData'])
         let objectStore = transaction.objectStore('iconData')
         let request = objectStore.get(order_index)
         return new Promise<any>((resolve, reject) => {
-            request.onerror = function (event) {
+            request.onerror = function () {
                 console.log('获取列表失败')
                 reject('err')
             }
-            request.onsuccess = function (event) {
+            request.onsuccess = function () {
                 if (request.result) {
                     console.log('res', request.result)
                     resolve(request.result)
@@ -79,8 +79,8 @@ class IndexDB {
         let objectStore = transaction.objectStore('iconData')
         // 遍历数据库
         return new Promise<Array<any>>(resolve => {
-            const list = []
-            objectStore.openCursor().onsuccess = event => {
+            const list: Array<any> = []
+            objectStore.openCursor().onsuccess = (event: any) => {
                 let cursor = event.target.result
                 if (cursor) {
                     list.push(cursor.value)
@@ -95,27 +95,27 @@ class IndexDB {
     }
 
 
-    update(data, order_index) {
+    update(data: any, order_index: number) {
         let request = this.db.transaction(['iconData'], 'readwrite').objectStore('iconData').put({
             id: new Date().getTime(),
             file: data,
             order_index: order_index
         })
-        request.onsuccess = event => {
+        request.onsuccess = () => {
             console.log('数据更新成功')
         }
-        request.onerror = event => {
+        request.onerror = () => {
             console.log('数据更新失败')
         }
     }
 
-    clickDel(id) {
+    clickDel(id: number) {
         const request = this.db.transaction(['iconData'], 'readwrite')
             .objectStore('iconData')
             .delete(id)
-        request.onsuccess = event => {
+        request.onsuccess = () => {
         }
-        request.onerror = event => {
+        request.onerror = () => {
         }
     }
 
